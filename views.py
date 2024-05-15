@@ -14,9 +14,13 @@ from django.contrib.auth.models import User as authUser
 
 from googleapiclient.discovery import build
 
+
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from django.contrib.auth import get_user_model, update_session_auth_hash
 
+
+
+from common.models import Message
 
 # from capstoneDesign.models import Memo
 
@@ -96,6 +100,7 @@ def index2(request):
         json_data = json.load(f)
     script_data = []
     text_data = []
+    summary_data = []
 
     for item in json_data:
         temp = {
@@ -106,6 +111,15 @@ def index2(request):
             'seconds': round(item['start'] % 60)  # 초
         }
         text_data.append(item['text'])
+
+        summary_data.append(item['start'])
+        summary_data.append('end=""')
+        summary_data.append('초')
+        summary_data.append(item['text'])
+        summary_data.append('\n')
+
+
+
         # print(item['text'])
         script_data.append(temp)
 
@@ -121,9 +135,42 @@ def index2(request):
 
     # w.close() 를 해줘야 텍스트 파일에 저장됨
     w.write('\n')
-    w.write('위 내용을 소제목과 내용으로 간단하게 요약해서 마크다운으로 작성해줘')
-
     w.close()
+
+    s = open(f'summary_{final_link[0]}.txt', 'w', encoding='UTF-8')
+
+    for element2 in summary_data:
+        if type(element2) != 'str':
+            element2 = str(element2)
+        s.write(element2 + '\n')
+
+    s.write('\n')
+    s.write('''
+    맨 앞에 '전반적인 요약' 이라는 말 빼주세요. 
+    
+    주제 별로 구간을 나누고 영상 시간 몇 분부터 몇 분 사이 내용인지도 작성해주세요.
+    주제로 단락을 나눌 때 제목을 적어주세요.
+    단락을 잘 나눠주세요.
+
+1. 시간대 별 요약 지시
+짧은 영상 (5분 이하): "영상의 핵심 주제와 가장 중요한 정보를 1-2문장으로 요약해주세요."
+중간 길이 영상 (5-20분): "영상의 주요 포인트를 3-5문장으로 요약하고, 각 포인트별로 핵심적인 세부 사항을 추가해주세요."
+긴 영상 (20분 이상): "영상을 여러 섹션으로 나누고 각 섹션의 핵심 요약을 제공해주세요. 또한 전체적인 주제와 결론을 포함하는 종합 요약을 추가해주세요."
+
+2. 주제 별 요약 지시
+
+교육적 내용: "영상에서 다루는 주요 교훈이나 학습 포인트를 강조하여 요약해주세요."
+엔터테인먼트: "영상의 주요 이벤트, 등장인물, 그리고 주요 전환점을 요약해주세요. 감정적인 반응이나 흥미로운 순간도 강조해주세요."
+뉴스/시사: "영상에서 다루는 주요 사건, 관련된 인물, 그리고 영향을 요약해주세요. 중요한 날짜나 위치 정보도 포함해주세요."
+
+3. 영상 형식에 따른 요약 지시
+
+인터뷰: "인터뷰에서 논의된 주요 주제들과 각각에 대한 인터뷰이의 주요 의견을 요약해주세요. 중요한 질문과 그에 대한 답변도 강조해주세요."
+튜토리얼/가이드: "영상에서 제공하는 주요 지침이나 단계들을 순서대로 요약해주세요. 중요한 팁이나 주의사항도 포함해주세요."
+리뷰/평가: "제품이나 서비스의 주요 특징, 장단점, 그리고 최종 평가를 요약해주세요. 리뷰어의 개인적인 의견이나 경험도 포함할 수 있습니다."
+''')
+
+
     # print(script_data)
 
     # 유해성 조정
@@ -155,9 +202,13 @@ def index2(request):
     print("ok")
 
     # 본인 api key 삽입
+
     genai.configure(api_key=gemini_key)
+
+    genai.configure(api_key="AIzaSyCEWy26KX9kve4l0E5TEYXZ91Bn-POd0zg")
+
     model = genai.GenerativeModel('gemini-pro', safety_settings=safety_settings)
-    with open(f'script_{final_link[0]}.txt', "r", encoding='UTF8') as f:
+    with open(f'summary_{final_link[0]}.txt', "r", encoding='UTF8') as f:
         example = f.read()
 
     response = model.generate_content(example)
@@ -402,6 +453,7 @@ def my_ajax_view(request):
     return JsonResponse({'items': list(data_list)})
 
 
+
 # def update_password(request, user_id):
 #     User = get_user_model()
 #     user = User.objects.get(pk=user_id)
@@ -433,3 +485,8 @@ def update_password(request, user_id):
 
     context = {'form': form}
     return render(request, 'update_password.html', context)
+
+def chat_view(request):
+    messages = Message.objects.all()
+    return render(request, 'chat.html', {'messages': messages})
+

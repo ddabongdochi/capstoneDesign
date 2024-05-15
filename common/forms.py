@@ -14,7 +14,7 @@ class UserForm(UserCreationForm):
 
 
 class MemoForm(forms.ModelForm):
-    text = forms.CharField(label="메모 내용", widget=forms.Textarea(attrs={'rows': 3}))
+    memoText = forms.CharField(label="메모 내용", widget=forms.Textarea(attrs={'rows': 3}))
 
     # time = forms.CharField(label="시간", max_length=50)  # 시간은 클라이언트에서 생성하여 전달해야 함
 

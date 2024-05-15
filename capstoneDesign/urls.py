@@ -27,6 +27,8 @@ import views
 from views import sign_up_complete
 from django.views.static import serve
 
+from views import chat_view
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='main_page'),
@@ -47,10 +49,14 @@ urlpatterns = [
     # re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
     path('edit-memo/', views.edit_memo, name='edit_memo'),
     path('index/', views.index, name='index'),
+<<<<<<< Updated upstream
     path('<int:user_id>/password/', views.update_password, name='update_password'),
     path('history/<int:videoo_id>/', views.history,name='history'),
     path('delete_history/<int:videoo_id>/', views.delete_history,name='delete_history'),
 
+=======
+    path('chat/', views.chat_view, name='chat'),
+>>>>>>> Stashed changes
 ]
 
 # url(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),

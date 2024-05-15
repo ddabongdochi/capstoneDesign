@@ -155,7 +155,7 @@
                             <a class="nav-link" id="loadData" href="#memo-list-tab" data-bs-toggle="tab">메모 보기</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                            <a class="nav-link" href="#chat-tab" data-bs-toggle="tab">채팅</a>
                         </li>
                     </ul>
                 </div>
@@ -212,8 +212,26 @@
                                     </ul>
                                 </nav>
                             </div>
+                            
+                            <div class="tab-pane fade" id="chat-tab">
+                                                            <!-- chat-log에 form-control과 form-control-plaintext 클래스를 추가하여 Bootstrap 스타일 적용 -->
+                                <textarea id="chat-log" class="form-control form-control-plaintext row-cols-auto" readonly></textarea>
+                                <br>
+                                <!-- chat-message-input에 form-control 클래스 추가 -->
+                                <input id="chat-message-input" class="form-control row-cols-auto" type="text">
+                                <br>
+                                <!-- chat-message-submit에 btn과 btn-primary 클래스 추가하여 Bootstrap 버튼 스타일 적용 -->
+                                <input id="chat-message-submit" class="btn btn-primary row-cols-auto" type="submit" value="Send">
+                                <ul id="chat-messages">
+                                    {% for message in messages %}
+                                    <li>{{ message.author.username }}: {{ message.message }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
                         </div>
+                        
                     </form>
+                        
                 </div>
             </div>
         </div>
@@ -595,6 +613,57 @@
 });
 
     
+    
+var chatSocket = new WebSocket(
+    'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
+);
+
+chatSocket.onmessage = function(e) {
+    var data = JSON.parse(e.data);
+    var message = data['message'];
+    // 메시지를 화면에 표시하는 코드를 여기에 작성하세요.
+};
+
+chatSocket.onclose = function(e) {
+    console.error('Chat socket closed unexpectedly');
+};
+
+document.querySelector('#your-message-input').onkeyup = function(e) {
+    const chatList = document.getElementById("chat-list");
+    const chatItems = document.getElementById("chat-items");
+    const messageInputDom = document.querySelector('#your-message-input');
+    const message = messageInputDom.value;
+    if (e.keyCode === 13) {  // enter 키가 눌리면
+        chatSocket.send(JSON.stringify({
+            'message': message
+        }));
+        messageInputDom.value = '';
+    }
+   
+    $('#chat-message-submit').off().on('click', function () {
+        chatSocket.send(JSON.stringify({
+            'message': message
+        }));
+        messageInputDom.value = '';
+        $.ajax({
+            url: '/chat/', // 요청을 보낼 서버의 URL
+            type: 'post', // HTTP 메소드
+            dataType: 'json', // 응답 데이터 타입
+            success: function (response) {
+                console.log(response)
+                $('#chat-list').empty()
+
+                // 응답으로 받은 items 리스트를 순회하면서 각 항목을 ul 태그에 추가
+                $.each(response.items, function (i, item) {
+                    // 이미 목록에 있는 아이템인지 확인
+                   
+                    const chatItem = document.createElement("li"); // 새 리스트 생성
+                });
+            }
+        });
+    });
+};
+
 
 
 
