@@ -1,26 +1,26 @@
-$(document).ready(function() {
-    $('#add-memo-form').submit(function(event) {
-        event.preventDefault(); // Prevent default form submission
+$(document).ready(function() { // 문서 완전히 로드되고, DOM 준비되면 실행.
+    $('#add-memo-form').submit(function(event) { // add-memo-form 폼이 제출될 때 발생하는 이벤트를 처리
+        event.preventDefault(); // 폼의 기본 제출 동작을 막음. 이로 인해 페이지가 리로드되지 않음.
 
 
         if (typeof player !== 'undefined') {
-            var currentTime = player.getCurrentTime();
+            var currentTime = player.getCurrentTime(); // 현재 재생 시간 가져옴.
             console.log("currentTime is " + currentTime);
-            $('#currenttime').val(currentTime); // Set the value of the hidden input field
+            $('#currenttime').val(currentTime); // 폼에서 hidden으로 설정했던 거 현재 재생 시간으로 설정.
         }
 
         // Get the form data
-        var formData = $(this).serialize();
-        var videoId = $('#add-memo-form [name="video_id"]').val()
+        var formData = $(this).serialize(); // 폼 데이터를 직렬화하여 쿼리 문자열 형식으로 변환
+        var videoId = $('#add-memo-form [name="video_id"]').val() // 폼 안의 video_id 입력 필드 값 가져옴.
         console.log(videoId);
-        var url = '/add-memo/' + encodeURIComponent(videoId) + '/'
+        var url = '/add-memo/' + encodeURIComponent(videoId) + '/' // AJAX 요청을 보낼 URL을 동적으로 생성
 
         console.log(videoId)
         // Send AJAX request
         $.ajax({
             type: 'POST',
-            url: url,
-            data: formData,
+            url: url, // 요청 보낼 url
+            data: formData, // 폼 데이터를 전송
             success: function(response) {
                 console.log("Success");
             },
@@ -37,9 +37,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const memoListLink = document.querySelector('.nav-tabs .nav-item:nth-child(2) .nav-link'); // 메모 보기 탭 보기
         const memoList = document.getElementById("memo-list"); // id가 "memo-list"인 요소를 찾아 'memolist'에 할당
         const memoItems = document.getElementById("memo-items"); // 메모 목록에 들어가는 아이템이 들어가는 리스트
-
-
-
 
         // 초를 분으로 변경하는 함수
         function changeSeconds(seconds) {
@@ -61,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
             memoList.style.display = "block";
         });
 
-        // 모달 설정 1
+        // 모달 설정 1 : 창 외부 클릭 시 모달 닫기
         window.addEventListener("click", function (event) {
             const memoModal = document.getElementById("memoModal");
             if (event.target === memoModal) {
@@ -74,12 +71,12 @@ document.addEventListener("DOMContentLoaded", function () {
             $(document.body).addClass('modal-open');
         });
 
-        // 모달 설정 3
+        // 모달 설정 3 : 모달 숨겨지면 modal-open 클래스 제거.
         $('#memoModal').on('hidden.bs.modal', function () {
             $(document.body).removeClass('modal-open');
         });
 
-        // 모달 설정 4
+        // 모달 설정 4 : 모달 내부 클릭 시에는 모달 닫히지 않음.
         $('#memoModal').on('click', function (event) {
             event.stopPropagation();
         });
@@ -102,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 메모 보기 탭
     $(document).ready(function () {
-        $("#loadMemo").click(function () {
+        $("#loadMemo").click(function () { // 클릭 이벤트 추가.
             var videoId = $(this).data("video-id");
             console.log(videoId);
             var url = '/list-memo/' + encodeURIComponent(videoId) + '/';
@@ -110,21 +107,21 @@ document.addEventListener("DOMContentLoaded", function () {
             $.ajax({
                 url: url, // URL to send the request to
                 type: 'get', // HTTP method
-                dataType: 'json', // Expected response data type
+                dataType: 'json', // 응답 데이터 유형
                 success: function (response) {
                     console.log(response);
                     $('#memo-list #dataList').empty(); // Clear the current list
 
                     // Iterate over the items received from the response
                     $.each(response.items, function (i, item) {
-                        if (!$(`#memo-list li[data-id="${item.id}"]`).length) {
+                        if (!$(`#memo-list li[data-id="${item.id}"]`).length) { // 중복 없을 때만 추가
                             // Create the list item element
-                            const memoItem = document.createElement("li");
-                            memoItem.className = "list-group list-group-item"; // Bootstrap list group class
-                            memoItem.setAttribute("data-id", item.id); // Set the data-id attribute
+                            const memoItem = document.createElement("li"); // 새로운 li 요소 생성
+                            memoItem.className = "list-group list-group-item"; // Bootstrap 스타일 적용
+                            memoItem.setAttribute("data-id", item.id); // 메모 id data_id 속성으로 설정
 
-                            var currentTime = item.current_time;
-                            var changedTime = changeSeconds(currentTime);
+                            var currentTime = item.current_time; // 메모 현재 시간 가져옴
+                            var changedTime = changeSeconds(currentTime); // 보기 좋은 형식으로 변환
 
                             memoItem.innerHTML = `
                                 <div class="row align-items-center">
@@ -141,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 </div>
                             `;
 
-                            $('#memo-list #dataList').append(memoItem); // Append the list item to the list
+                            $('#memo-list #dataList').append(memoItem); // 생성된 리스트 아이템 메모 목록에 추가
                         }
                     });
                     console.log("Server request successful!");
@@ -153,20 +150,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    $(document).on("click", ".editMemo", function () {
-        const memoItem = $(this).closest("li");
-        const memoId = memoItem.data("id");
-        const memoTextElement = memoItem.find('.memo-text'); // Get memo text element
-        const memoText = memoTextElement.text(); // Get memo text content
+    $(document).on("click", ".editMemo", function () { // editMemo 클래스 가진 버튼 클릭되면 이벤트 핸들러 등록
+        const memoItem = $(this).closest("li"); // 가까운 li, memoItem 가져옴
+        const memoId = memoItem.data("id"); // memoItem의 data-id 속성값 가져옴
+        const memoTextElement = memoItem.find('.memo-text'); // 메모 텍스트 요소 찾음
+        const memoText = memoTextElement.text(); // 메모 텍스트 요소 가져옴
 
-        $('#editMemoModal').modal('show'); // Open modal
-        $('#editMemoText').val(memoText); // Set the textarea value in the modal
+        $('#editMemoModal').modal('show'); // 모달 열기
+        $('#editMemoText').val(memoText); // 모달 내의 텍스트 영역에 메모 텍스트 설정
 
-        // "Save" button click event handler
-        $('#saveEditedMemo').off().on('click', function () {
-            const editedMemoText = $('#editMemoText').val(); // Get the edited memo content
+        // 저장 버튼 눌렀을 때 이벤트 핸들러
+        $('#saveEditedMemo').off().on('click', function () { // off() 메서드를 사용하여 이전에 등록된 모든 클릭 이벤트 핸들러를 제거한 후 새로운 핸들러를 등록
+            const editedMemoText = $('#editMemoText').val(); // 수정된 메모 내용 가져옴
 
-            // Send the updated content to the server
+            // 수정된 내용 서버에 전송
             $.ajax({
                 url: '/edit-memo/',
                 type: 'POST',
@@ -178,9 +175,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 success: function (response) {
                     console.log("edited memo is " + editedMemoText);
                     console.log("Server response:", response);
-                    // Update the memo text in the memo item immediately
-                    memoTextElement.text(editedMemoText);
-                    $('#editMemoModal').modal('hide'); // Close modal
+
+                    memoTextElement.text(editedMemoText); // 메모 항목 내의 텍스트를 수정된 내용으로 즉시 업데이트
+                    $('#editMemoModal').modal('hide'); // 모달 닫음
                 },
                 error: function(xhr, status, error){
                     console.error("Server error:", error);
@@ -205,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
             url: '/delete-memo/',
             type: 'POST',
             data: {
-                memo_id: memoId
+                memo_id: memoId // 삭제할 메모 id
             },
             dataType: 'json',
             success: function (response) {

@@ -67,9 +67,9 @@
                         <!--메모 입력-->
                         <div class="tab-content">
                             <div class="tab-pane fade show active" id="memo-tab">
-                                <textarea id="memo-text" name="text" class="form-control mt-3" rows="3"></textarea>
-                                <input type="hidden" name="video_id" value="{{ video_id }}">
-                                <input type="hidden" name="currenttime" id="currenttime">
+                                <textarea id="memo-text" name="text" class="form-control mt-3" rows="3"></textarea> //폼 데이터 제출시 text라는 이름으로 전송
+                                <input type="hidden" name="video_id" value="{{ video_id }}"> // 안보이게 video_id 동적으로 설정하여 전송
+                                <input type="hidden" name="currenttime" id="currenttime"> // 폼 데이터 제출시 안보이게 전송. JS에서 참조할 수 있게 함.
 
                                 <button class="btn btn-primary mt-2" data-bs-toggle="modal"
                                         data-bs-target="#memoModal" type="submit" id="add-memo">메모 추가
@@ -81,7 +81,7 @@
                 <div class="card-body">
                     <div class="tab-pane fade" id="memo-list-tab">
                         <div id="memo-list">
-                            <ul id="dataList"></ul>
+                            <ul id="dataList"></ul> // JS 사용하여 메모 항목을 동적으로 추가
                         </div>
                     </div>
                 </div>
